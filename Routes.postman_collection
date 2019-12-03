@@ -1,0 +1,151 @@
+{
+	"info": {
+		"_postman_id": "48314539-4275-4a15-bf50-ed8169b534ab",
+		"name": "Routes",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "http://localhost:3002/user/",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3002/user/",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3002",
+					"path": [
+						"user",
+						""
+					]
+				},
+				"description": "Request user list"
+			},
+			"response": []
+		},
+		{
+			"name": "http://localhost:3002/user/:id",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3002/user/:id",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3002",
+					"path": [
+						"user",
+						":id"
+					],
+					"variable": [
+						{
+							"key": "id",
+							"value": "5de638433b1ab2023deb3302"
+						}
+					]
+				},
+				"description": "Get user data by ID"
+			},
+			"response": []
+		},
+		{
+			"name": "http://localhost:3002/user/create",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"checked\": true,\n    \"firstName\": \"Roberto\",\n    \"lastName\": \"Buckswheat\",\n    \"login\": \"tarqinn\",\n    \"workPhone\": \"0677777777\",\n    \"personalPhone\": \"\",\n    \"workEmail\": \"example@apple.com\",\n    \"personalEmail\": \"\",\n    \"businessLocation\": \"San Francisco\",\n    \"company\": \"Moving LLC\",\n    \"role\": \"Helper\",\n    \"hourlyRate\": 8\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3002/user/create",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3002",
+					"path": [
+						"user",
+						"create"
+					]
+				},
+				"description": "Post-request to create new user"
+			},
+			"response": []
+		},
+		{
+			"name": "http://localhost:3002/user/edit/:id",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3002/user/edit/:id",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3002",
+					"path": [
+						"user",
+						"edit",
+						":id"
+					],
+					"variable": [
+						{
+							"key": "id",
+							"value": ""
+						}
+					]
+				},
+				"description": "Edit existing user with given ID"
+			},
+			"response": []
+		},
+		{
+			"name": "http://localhost:3002/user/remove/:id",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3002/user/remove/:id",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3002",
+					"path": [
+						"user",
+						"remove",
+						":id"
+					],
+					"variable": [
+						{
+							"key": "id",
+							"value": ""
+						}
+					]
+				},
+				"description": "Delete user with given ID"
+			},
+			"response": []
+		}
+	],
+	"protocolProfileBehavior": {}
+}
