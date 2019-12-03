@@ -3,8 +3,12 @@ const router = express.Router();
 
 const UserModel = require('../models/user.model');
 
-router.get('/', async function(req, res) {
-  const userList = await UserModel.find({});
+router.get('/page/:skip', async function(req, res) {
+  const userList = await UserModel.find({}).select(
+    'checked firstName lastName role businessLocation workEmail workPhone hourlyRate'
+  ).skip(parseInt(req.params.skip)).limit(5).sort({
+    _id: 'asc'
+});
 
   if (!userList || userList.length === 0) {
     res.status(404).send({ message: 'Users not found' });
