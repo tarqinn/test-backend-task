@@ -7,11 +7,11 @@ const UserSchema = new mongoose.Schema(
       require: true,
       default: false
     },
-    userId: {
-      type: Number,
-      require: true,
-      default: 0
-    },
+    // userId: {
+    //   type: Number,
+    //   require: true,
+    //   default: 0
+    // },
     firstName: {
       type: String,
       require: true,

@@ -17,7 +17,7 @@ router.get('/', async function(req, res) {
 /* GET users listing. */
 router.get('/:id', async function(req, res) {
   const { params } = req;
-  const user = await UserModel.findOne({ userId: params.id });
+  const user = await UserModel.findOne({ _id: params.id });
 
   if (!user) {
     res.status(404).send({ message: 'User not found' });
@@ -29,7 +29,7 @@ router.get('/:id', async function(req, res) {
 router.post('/create', async function(req, res) {
   const {
     checked,
-    userId,
+    // userId,
     firstName,
     lastName,
     login,
@@ -45,7 +45,7 @@ router.post('/create', async function(req, res) {
 
   const user = await new UserModel({
     checked,
-    userId,
+    // userId,
     firstName,
     lastName,
     login,
@@ -67,8 +67,8 @@ router.post('/create', async function(req, res) {
 });
 
 router.post('/edit/:id', async function(req, res) {
-  const { id: userId } = req.params;
-  const result = await UserModel.findOneAndUpdate({ userId }, req.body, {
+  const { id: _id } = req.params;
+  const result = await UserModel.findOneAndUpdate({ _id }, req.body, {
     new: true
   });
 
@@ -81,8 +81,8 @@ router.post('/edit/:id', async function(req, res) {
 });
 
 router.post('/remove/:id', async function(req, res) {
-  const { id: userId } = req.params;
-  const result = await UserModel.findOneAndDelete({ userId });
+  const { id: _id } = req.params;
+  const result = await UserModel.findOneAndDelete({ _id });
 
   if (!result) {
     res.status(404).send({ message: 'User not found' });
