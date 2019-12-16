@@ -1,7 +1,16 @@
 const express = require('express');
 const router = express.Router();
-const mongoose =require('mongoose')
+const mongoose = require('mongoose');
 const UserModel = require('../models/user.model');
+const TokenModel = require('../models/token.model');
+const jwt = require('jsonwebtoken');
+
+router.use(async (req, res, next) => {
+  const { currentUser } = jwt.decode(req.headers.authorization);
+  const savedToken = await TokenModel.findOne({userId: currentUser._id});
+  console.log(savedToken);
+  next();
+});
 
 router.get('/page/:skip', async function(req, res) {
   const fullLength = await  UserModel.count();
@@ -23,7 +32,6 @@ router.get('/page/:skip', async function(req, res) {
 router.post('/create', async function(req, res) {
   const {
     checked,
-    // userId,
     firstName,
     lastName,
     login,
@@ -39,7 +47,6 @@ router.post('/create', async function(req, res) {
 
   const user = await new UserModel({
     checked,
-    // userId,
     firstName,
     lastName,
     login,
@@ -104,7 +111,7 @@ router.get('/:id', async function(req, res) {
     return;
   }
 
-  res.status(200).send(user);
+  return res.status(200).send(user);
 });
 
 module.exports = router;
