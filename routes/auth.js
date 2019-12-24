@@ -44,17 +44,16 @@ router.post('/login', async (req, res) => {
     expiresIn: process.env.REFRESH_TOKEN_LIFE
   });
 
-  await new TokenModel({
-    token: RefreshToken,
-    userId: _id
-  })
-    .save()
-    .catch(err => {
-      console.log(err);
-    });
-
   if (result) {
     res.status(200).send({ AutorizationToken, RefreshToken });
+    await new TokenModel({
+      token: RefreshToken,
+      userId: _id
+    })
+      .save()
+      .catch(err => {
+        console.log(err);
+      });
   } else {
     res.status(401).send({ message: 'password is incorrect' });
   }
@@ -62,31 +61,38 @@ router.post('/login', async (req, res) => {
 
 router.post('/send-new-tokens', async (req, res) => {
   const { refToken } = await req.body;
+  console.log(refToken);
   const decodedToken = await jwt.verify(
     refToken,
     process.env.SECRET,
     (err, decoded) => (err ? err : decoded)
   );
   console.log(decodedToken);
-  console.log(refToken);
-  const { role } = await AuthModel.findOne({ _id: decodedToken._id }).catch(
-    err => err
-  );
-  console.log(role);
   const AutorizationToken = await jwt.sign(
-    { _id: decodedToken._id, role },
+    { _id: decodedToken._id },
     process.env.SECRET,
     { expiresIn: process.env.AUTH_TOKEN_LIFE }
   );
-  const RefreshToken = await jwt.sign({ _id: decodedToken._id }, process.env.SECRET, {
-    expiresIn: process.env.REFRESH_TOKEN_LIFE
-  });
-  const result = await TokenModel.findOneAndDelete({
+  console.log(AutorizationToken);
+  const RefreshToken = await jwt.sign(
+    { _id: decodedToken._id },
+    process.env.SECRET,
+    {
+      expiresIn: process.env.REFRESH_TOKEN_LIFE
+    }
+  );
+  console.log(RefreshToken);
+  const result = await TokenModel.findOne({
     token: refToken
   }).catch(err => console.log(err));
   console.log(result);
-  if (result && decodedToken._id === result.userId && Date.now() < parseInt(exp + '000')) {
+  if (
+    result &&
+    decodedToken._id === result.userId &&
+    Date.now() < parseInt(decodedToken.exp + '000')
+  ) {
     res.status(200).send({ AutorizationToken, RefreshToken });
+    await TokenModel.remove({}).catch(err => console.log(err));
     await new TokenModel({
       token: RefreshToken,
       userId: decodedToken._id
