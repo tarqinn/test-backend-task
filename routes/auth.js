@@ -37,16 +37,12 @@ router.post('/login', async (req, res) => {
 
   const { _id, role } = currentUser;
   const result = await bcrypt.compare(pass, currentUser.pass);
-  const AutorizationToken = await jwt.sign(
-    { _id, role },
-    Buffer.from(process.env.SECRET, 'base64'),
-    { expiresIn: process.env.AUTH_TOKEN_LIFE }
-  );
-  const RefreshToken = await jwt.sign(
-    { _id },
-    Buffer.from(process.env.SECRET, 'base64'),
-    { expiresIn: process.env.REFRESH_TOKEN_LIFE }
-  );
+  const AutorizationToken = await jwt.sign({ _id, role }, process.env.SECRET, {
+    expiresIn: process.env.AUTH_TOKEN_LIFE
+  });
+  const RefreshToken = await jwt.sign({ _id }, process.env.SECRET, {
+    expiresIn: process.env.REFRESH_TOKEN_LIFE
+  });
 
   await new TokenModel({
     token: RefreshToken,
@@ -65,24 +61,40 @@ router.post('/login', async (req, res) => {
 });
 
 router.post('/send-new-tokens', async (req, res) => {
-  const { refreshToken } = req.body;
-  const { _id } = jwt.decode(refreshToken);
-  const { role } = await AuthModel.findOne({ _id }).catch(err => err);
+  const { refToken } = await req.body;
+  const decodedToken = await jwt.verify(
+    refToken,
+    process.env.SECRET,
+    (err, decoded) => (err ? err : decoded)
+  );
+  console.log(decodedToken);
+  console.log(refToken);
+  const { role } = await AuthModel.findOne({ _id: decodedToken._id }).catch(
+    err => err
+  );
+  console.log(role);
   const AutorizationToken = await jwt.sign(
-    { _id, role },
-    Buffer.from(process.env.SECRET, 'base64'),
+    { _id: decodedToken._id, role },
+    process.env.SECRET,
     { expiresIn: process.env.AUTH_TOKEN_LIFE }
   );
-  const RefreshToken = await jwt.sign(
-    { _id },
-    Buffer.from(process.env.SECRET, 'base64'),
-    { expiresIn: process.env.REFRESH_TOKEN_LIFE }
-  );
+  const RefreshToken = await jwt.sign({ _id: decodedToken._id }, process.env.SECRET, {
+    expiresIn: process.env.REFRESH_TOKEN_LIFE
+  });
   const result = await TokenModel.findOneAndDelete({
-    token: refreshToken
-  }).catch(err => err);
-  if (result && _id === result.userId && Date.now() < parseInt(exp + '000')) {
+    token: refToken
+  }).catch(err => console.log(err));
+  console.log(result);
+  if (result && decodedToken._id === result.userId && Date.now() < parseInt(exp + '000')) {
     res.status(200).send({ AutorizationToken, RefreshToken });
+    await new TokenModel({
+      token: RefreshToken,
+      userId: decodedToken._id
+    })
+      .save()
+      .catch(err => {
+        console.log(err);
+      });
   } else {
     res.status(401).send({ message: 'Invalid refresh token' });
   }
@@ -90,9 +102,13 @@ router.post('/send-new-tokens', async (req, res) => {
 
 router.post('/logout', async (req, res) => {
   const { refreshToken } = req.body;
-  const { _id } = jwt.decode(refreshToken);
+  const { _id } = jwt.verify(refreshToken, process.env.SECRET, (err, decoded) =>
+    err ? err : decoded
+  );
   const userTokens = await TokenModel.deleteMany({ userId: _id });
-  userTokens ? res.status(200).send({message: 'Logout Successful'}) : res.status(401).send({ message: 'Invalid refresh token' });
+  userTokens
+    ? res.status(200).send({ message: 'Logout Successful' })
+    : res.status(401).send({ message: 'Invalid refresh token' });
 });
 
 module.exports = router;
