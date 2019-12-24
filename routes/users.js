@@ -6,7 +6,7 @@ const TokenModel = require('../models/token.model');
 const jwt = require('jsonwebtoken');
 
 router.use(async (req, res, next) => {
-  const currentUser = jwt.decode(req.headers.authorization);
+  const currentUser = await jwt.verify(req.headers.authorization, process.env.SECRET, (err, decoded) => err ? err : decoded);
   const savedToken = await TokenModel.findOne({ userId: currentUser._id });
   savedToken && Date.now() < parseInt(currentUser.exp + '000')
     ? next()
