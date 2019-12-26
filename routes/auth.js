@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const mongoose = require('mongoose');
+// const mongoose = require('mongoose');
 const AuthModel = require('../models/auth.model');
 const TokenModel = require('../models/token.model');
 const jwt = require('jsonwebtoken');
@@ -31,7 +31,7 @@ router.post('/login', async (req, res) => {
   const currentUser = await AuthModel.findOne({ login }).catch(err => err);
 
   if (!currentUser || currentUser.message) {
-    res.status(401).send({ message: "login doesn't exist" });
+    res.status(401).send({ message: 'login doesn\'t exist' });
     return;
   }
 
@@ -61,19 +61,16 @@ router.post('/login', async (req, res) => {
 
 router.post('/send-new-tokens', async (req, res) => {
   const { refToken } = await req.body;
-  console.log(refToken);
   const decodedToken = await jwt.verify(
     refToken,
     process.env.SECRET,
     (err, decoded) => (err ? err : decoded)
   );
-  console.log(decodedToken);
   const AutorizationToken = await jwt.sign(
     { _id: decodedToken._id },
     process.env.SECRET,
     { expiresIn: process.env.AUTH_TOKEN_LIFE }
   );
-  console.log(AutorizationToken);
   const RefreshToken = await jwt.sign(
     { _id: decodedToken._id },
     process.env.SECRET,
@@ -81,18 +78,16 @@ router.post('/send-new-tokens', async (req, res) => {
       expiresIn: process.env.REFRESH_TOKEN_LIFE
     }
   );
-  console.log(RefreshToken);
   const result = await TokenModel.findOne({
     token: refToken
   }).catch(err => console.log(err));
-  console.log(result);
   if (
     result &&
     decodedToken._id === result.userId &&
     Date.now() < parseInt(decodedToken.exp + '000')
   ) {
     res.status(200).send({ AutorizationToken, RefreshToken });
-    await TokenModel.remove({}).catch(err => console.log(err));
+    await TokenModel.deleteMany({}).catch(err => console.log(err));
     await new TokenModel({
       token: RefreshToken,
       userId: decodedToken._id

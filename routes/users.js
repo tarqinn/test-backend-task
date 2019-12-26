@@ -15,12 +15,13 @@ router.use(async (req, res, next) => {
 
 router.get('/page/:skip', async function(req, res) {
   const fullLength = await UserModel.count();
+  const limitNum = 5;
 
   const userList = await UserModel.find({})
     .select(
       'checked firstName lastName role businessLocation workEmail workPhone hourlyRate'
     )
-    .skip(parseInt(req.params.skip))
+    .skip(parseInt((req.params.skip * limitNum) - limitNum))
     .limit(5)
     .sort({
       _id: 'asc'
@@ -90,7 +91,7 @@ router.post('/remove/:id', async function(req, res) {
   const { id: _id } = req.params;
   const result = await UserModel.findOneAndDelete({ _id }).catch(err => err);
 
-  if (result.message) {
+  if (!result) {
     res.status(404).send({ message: 'User not found' });
     return;
   }
