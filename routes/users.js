@@ -6,7 +6,11 @@ const TokenModel = require('../models/token.model');
 const jwt = require('jsonwebtoken');
 
 router.use(async (req, res, next) => {
-  const currentUser = await jwt.verify(req.headers.authorization, process.env.SECRET, (err, decoded) => err ? err : decoded);
+  const currentUser = await jwt.verify(
+    req.headers.authorization,
+    process.env.SECRET,
+    (err, decoded) => (err ? err : decoded)
+  );
   const savedToken = await TokenModel.findOne({ userId: currentUser._id });
   savedToken && Date.now() < parseInt(currentUser.exp + '000')
     ? next()
@@ -21,7 +25,7 @@ router.get('/page/:skip', async function(req, res) {
     .select(
       'checked firstName lastName role businessLocation workEmail workPhone hourlyRate'
     )
-    .skip(parseInt((req.params.skip * limitNum) - limitNum))
+    .skip(parseInt(req.params.skip * limitNum - limitNum))
     .limit(5)
     .sort({
       _id: 'asc'
