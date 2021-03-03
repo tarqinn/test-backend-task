@@ -16,6 +16,6 @@
     "http-errors": "~1.6.3",
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^5.7.12",
-    "pug": "^2.0.4"
+    "pug": "^3.0.1"
   }
 }
